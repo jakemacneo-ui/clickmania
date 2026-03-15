@@ -1,0 +1,15 @@
+{
+  "name": "clickmania",
+  "version": "1.0.0",
+  "description": "Clicker game with users, friends, and click races",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3"
+  }
+}

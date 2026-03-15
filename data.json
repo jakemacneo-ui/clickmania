@@ -1,0 +1,36 @@
+{
+  "users": [
+    {
+      "id": "1773605779406nojd5zf",
+      "username": "turret",
+      "passwordHash": "$2a$10$nyFDdDdqmUpKzq3voC8q2elB9vVLX17SQhlLdxTv7FtyDDtD8zija",
+      "coins": 0
+    },
+    {
+      "id": "1773605807619i0d8ksj",
+      "username": "turretz",
+      "passwordHash": "$2a$10$tUZVKK91S/D52ZmmdcxmoOJp876WOZLVZ/atNqNXdajD8GH7Vsza.",
+      "coins": 0
+    }
+  ],
+  "friends": [
+    {
+      "userId": "1773605807619i0d8ksj",
+      "friendId": "1773605779406nojd5zf"
+    }
+  ],
+  "races": [
+    {
+      "id": "r_1773605836203_w9oqtx",
+      "hostId": "1773605807619i0d8ksj",
+      "opponentId": "1773605779406nojd5zf",
+      "targetClicks": 100,
+      "stakeCoins": 0,
+      "hostClicks": 0,
+      "opponentClicks": 0,
+      "status": "pending",
+      "winnerId": null,
+      "createdAt": 1773605836204
+    }
+  ]
+}
