@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple Clicker Game</title>
+  <title>Clickmania by JakeCodes</title>
   <style>
     :root {
       --bg: #050816;
@@ -626,6 +626,339 @@
       bottom: -1px;
     }
 
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: radial-gradient(circle at top, #1d293b 0, #020617 65%, #000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
+      border-radius: 22px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 28px 24px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+    }
+
+    .auth-title {
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .auth-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-tab.active {
+      background: rgba(34, 197, 94, 0.2);
+      color: #bbf7d0;
+    }
+
+    .auth-form label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: rgba(34, 197, 94, 0.7);
+    }
+
+    .auth-form button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(145deg, #22c55e, #16a34a);
+      color: #fff;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .auth-form button[type="submit"]:hover {
+      filter: brightness(1.1);
+    }
+
+    .auth-error {
+      font-size: 12px;
+      color: #fca5a5;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .app-authenticated {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-authenticated.visible {
+      display: flex;
+    }
+
+    .auth-screen.hidden {
+      display: none;
+    }
+
+    .user-bar {
+      position: fixed;
+      top: 10px;
+      left: 16px;
+      z-index: 60;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .user-bar .username {
+      font-weight: 600;
+      color: #bbf7d0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
+      color: #e5e7eb;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .modal-panel {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      padding: 20px;
+    }
+
+    .modal-panel.visible {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 20px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+      overflow-y: auto;
+    }
+
+    .modal-box h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    .search-row button {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      background: rgba(34, 197, 94, 0.15);
+      color: #bbf7d0;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .user-list, .friend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .user-row, .friend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .user-row .name, .friend-row .name {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .user-row .meta, .friend-row .meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .user-row button, .friend-row button {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .btn-friend {
+      background: rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+    }
+
+    .btn-challenge {
+      background: rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .race-create-form label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .race-create-form input, .race-create-form select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      margin-bottom: 12px;
+    }
+
+    .race-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .race-card {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .race-card .status { font-size: 11px; text-transform: uppercase; color: #a5b4fc; }
+    .race-card .vs { font-size: 13px; color: #e5e7eb; margin: 6px 0; }
+    .race-card .progress { font-size: 12px; color: var(--muted); }
+    .race-card button { margin-top: 8px; margin-right: 6px; padding: 6px 12px; border-radius: 8px; border: none; font-size: 11px; cursor: pointer; }
+
+    .race-live {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .race-live .target { font-size: 24px; font-weight: 700; color: #22c55e; margin-bottom: 16px; }
+    .race-live .scores { display: flex; justify-content: center; gap: 24px; margin: 16px 0; }
+    .race-live .score-box { padding: 12px 20px; border-radius: 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.4); }
+    .race-live .score-box .label { font-size: 11px; color: var(--muted); }
+    .race-live .score-box .value { font-size: 22px; font-weight: 700; color: #e5e7eb; }
+    .race-live .race-click-btn {
+      margin-top: 16px;
+      padding: 16px 48px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(145deg, #22c55e, #16a34a);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .shop-button {
       border-radius: 999px;
       border: 1px solid rgba(59, 130, 246, 0.7);
@@ -974,6 +1307,36 @@
   </style>
 </head>
 <body>
+  <!-- Auth (shown first load until signed in) -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-title">Clickmania</div>
+      <div class="auth-subtitle">Sign in or create an account to play</div>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-tab="signin">Sign In</button>
+        <button type="button" class="auth-tab" data-tab="signup">Sign Up</button>
+      </div>
+      <form class="auth-form" id="authForm">
+        <div class="auth-error" id="authError" style="display: none;"></div>
+        <label for="authUsername">Username</label>
+        <input type="text" id="authUsername" name="username" required minlength="2" placeholder="Username" autocomplete="username" />
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" name="password" required minlength="4" placeholder="Password" autocomplete="current-password" />
+        <button type="submit" id="authSubmit">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-authenticated" id="appAuthenticated">
+  <div class="user-bar">
+    <span class="username" id="headerUsername">—</span>
+    <div class="nav-buttons">
+      <button type="button" class="nav-btn" id="btnUsers">Users</button>
+      <button type="button" class="nav-btn" id="btnRaces">Races</button>
+      <button type="button" class="nav-btn" id="btnSignOut">Sign Out</button>
+    </div>
+  </div>
+
   <div class="classic-frame"></div>
 
   <div class="currency-pill">
@@ -988,7 +1351,7 @@
     <div class="pane">
       <div class="header-row">
         <div class="title-block">
-          <div class="title">Nebula Clicker</div>
+          <div class="title">Clickmania</div>
           <div class="subtitle">Click to generate energy, then automate the universe.</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1122,6 +1485,50 @@
     </div>
   </div>
 
+  <!-- Users modal -->
+  <div class="modal-panel" id="usersModal">
+    <div class="modal-box">
+      <h3>Users</h3>
+      <div class="search-row">
+        <input type="text" id="usersSearch" placeholder="Search by username" />
+        <button type="button" id="usersSearchBtn">Search</button>
+      </div>
+      <div class="user-list" id="userList"></div>
+      <h3 style="margin-top: 18px;">Friends</h3>
+      <div class="friend-list" id="friendList"></div>
+      <button type="button" class="nav-btn" style="margin-top: 12px;" id="usersModalClose">Close</button>
+    </div>
+  </div>
+
+  <!-- Races modal -->
+  <div class="modal-panel" id="racesModal">
+    <div class="modal-box">
+      <h3>Click Races</h3>
+      <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">Challenge a friend. First to reach the target clicks wins the stake from the loser.</p>
+      <div id="raceCreateSection">
+        <h4 style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">Create race (friends only)</h4>
+        <form class="race-create-form" id="raceCreateForm">
+          <label>Friend</label>
+          <select id="raceFriendSelect"></select>
+          <label>Target clicks (host picks)</label>
+          <input type="number" id="raceTargetClicks" min="10" value="100" />
+          <label>Stake (coins winner takes from loser)</label>
+          <input type="number" id="raceStakeCoins" min="0" value="10" />
+          <button type="submit" class="nav-btn">Create race</button>
+        </form>
+      </div>
+      <h4 style="font-size: 12px; color: #9ca3af; margin: 16px 0 8px;">Your races</h4>
+      <div class="race-list" id="raceList"></div>
+      <div id="raceLiveSection" style="display: none;">
+        <div class="race-live" id="raceLiveContent"></div>
+        <button type="button" class="nav-btn" id="raceLiveBack">Back to list</button>
+      </div>
+      <button type="button" class="nav-btn" style="margin-top: 12px;" id="racesModalClose">Close</button>
+    </div>
+  </div>
+
+  </div><!-- end app-authenticated -->
+
   <script>
     const formatNumber = (n) => {
       if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";
@@ -1131,7 +1538,147 @@
       return Math.floor(n).toString();
     };
 
+    const API_BASE = ""; // same origin when served from server
+    const api = (path, options = {}) => fetch(API_BASE + path, { ...options, credentials: "include" });
+
+    let currentUser = null;
+    let authChecked = false;
+
+    function showAuthError(msg) {
+      const el = document.getElementById("authError");
+      if (el) { el.textContent = msg || ""; el.style.display = msg ? "block" : "none"; }
+    }
+
+    function setAuthUI(signedIn) {
+      const authScreen = document.getElementById("authScreen");
+      const appAuth = document.getElementById("appAuthenticated");
+      const headerUsername = document.getElementById("headerUsername");
+      if (signedIn && currentUser) {
+        if (authScreen) authScreen.classList.add("hidden");
+        if (appAuth) appAuth.classList.add("visible");
+        if (headerUsername) headerUsername.textContent = currentUser.username;
+      } else {
+        if (authScreen) authScreen.classList.remove("hidden");
+        if (appAuth) appAuth.classList.remove("visible");
+        if (headerUsername) headerUsername.textContent = "—";
+      }
+    }
+
+    function checkAuth() {
+      return api("/api/auth/me").then((r) => (r.ok ? r.json() : null)).then((data) => {
+        if (data && data.user) {
+          currentUser = data.user;
+          setAuthUI(true);
+          return true;
+        }
+        currentUser = null;
+        setAuthUI(false);
+        return false;
+      });
+    }
+
+    function initAuthUI() {
+      const form = document.getElementById("authForm");
+      const tabs = document.querySelectorAll(".auth-tab");
+      const submitBtn = document.getElementById("authSubmit");
+      let mode = "signin";
+
+      tabs.forEach((t) => {
+        t.addEventListener("click", () => {
+          mode = t.dataset.tab;
+          tabs.forEach((x) => x.classList.toggle("active", x.dataset.tab === mode));
+          submitBtn.textContent = mode === "signup" ? "Sign Up" : "Sign In";
+          showAuthError("");
+        });
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showAuthError("");
+        const username = (document.getElementById("authUsername") || {}).value.trim();
+        const password = (document.getElementById("authPassword") || {}).value;
+        if (!username || !password) return;
+
+        const path = mode === "signup" ? "/api/auth/signup" : "/api/auth/signin";
+        const res = await api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          showAuthError(data.error || "Something went wrong");
+          return;
+        }
+        currentUser = data.user;
+        // Mirror credentials locally for quick local lookup
+        if (mode === "signup") {
+          upsertLocalUser(username, password);
+        }
+        setAuthUI(true);
+        loadGameForCurrentUser();
+        if (currentUser && typeof currentUser.coins === "number") state.coins = currentUser.coins;
+        render();
+      });
+
+      document.getElementById("btnSignOut").addEventListener("click", async () => {
+        await api("/api/auth/signout", { method: "POST" });
+        currentUser = null;
+        setAuthUI(false);
+      });
+    }
+
     const saveKey = "nebula_clicker_save_v1";
+    const LOCAL_USERS_KEY = "clickmania_users_v1";
+    const LOCAL_SAVES_KEY = "clickmania_saves_v1";
+
+    function loadLocalUsers() {
+      try {
+        const raw = localStorage.getItem(LOCAL_USERS_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLocalUsers(users) {
+      try {
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users || []));
+      } catch {}
+    }
+
+    function upsertLocalUser(username, password) {
+      const users = loadLocalUsers();
+      const existing = users.find((u) => u.username === username);
+      if (existing) {
+        existing.password = password;
+      } else {
+        users.push({ username, password });
+      }
+      saveLocalUsers(users);
+    }
+
+    function getLocalUserSave(username) {
+      if (!username) return null;
+      try {
+        const raw = localStorage.getItem(LOCAL_SAVES_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed[username] || null : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveLocalUserSave(username, save) {
+      if (!username) return;
+      try {
+        const raw = localStorage.getItem(LOCAL_SAVES_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const all = parsed && typeof parsed === "object" ? parsed : {};
+        all[username] = save;
+        localStorage.setItem(LOCAL_SAVES_KEY, JSON.stringify(all));
+      } catch {}
+    }
 
     const CURRENCY_PROGRESS_MAX = 100;
     const CLICKS_PROGRESS_WEIGHT = 2;
@@ -1250,49 +1797,85 @@
 
     function loadGame() {
       try {
+        // Legacy global save (pre-accounts) for backwards compatibility
         const raw = localStorage.getItem(saveKey);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object") return;
-
-        state = {
-          ...state,
-          ...parsed,
-          upgrades: state.upgrades.map((u) => {
-            const saved = parsed.upgrades?.find((x) => x.id === u.id);
-            return saved ? { ...u, ...saved } : u;
-          }),
-        };
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            state = {
+              ...state,
+              ...parsed,
+              upgrades: state.upgrades.map((u) => {
+                const saved = parsed.upgrades?.find((x) => x.id === u.id);
+                return saved ? { ...u, ...saved } : u;
+              }),
+            };
+          }
+        }
       } catch (e) {
         console.warn("Failed to load save", e);
       }
     }
 
+    function loadGameForCurrentUser() {
+      if (!currentUser || !currentUser.username) {
+        loadGame();
+        return;
+      }
+      try {
+        const perUser = getLocalUserSave(currentUser.username);
+        if (perUser && typeof perUser === "object") {
+          state = {
+            ...state,
+            ...perUser,
+            upgrades: state.upgrades.map((u) => {
+              const saved = perUser.upgrades?.find((x) => x.id === u.id);
+              return saved ? { ...u, ...saved } : u;
+            }),
+          };
+          return;
+        }
+      } catch (e) {
+        console.warn("Failed to load per-user save", e);
+      }
+      // Fallback to legacy global save if no per-user data yet
+      loadGame();
+    }
+
     function saveGame() {
       try {
-        localStorage.setItem(
-          saveKey,
-          JSON.stringify({
-            coins: state.coins,
-            lifetimeCoins: state.lifetimeCoins,
-            clicks: state.clicks,
-            perClick: state.perClick,
-            clickCurrency: state.clickCurrency,
-            currencyProgress: state.currencyProgress,
-            globalClickMultiplier: state.globalClickMultiplier,
-            globalAutoMultiplier: state.globalAutoMultiplier,
-            upgradeCostMultiplier: state.upgradeCostMultiplier,
-            upgrades: state.upgrades.map((u) => ({
-              id: u.id,
-              count: u.count,
-            })),
-            shopPowerups: state.shopPowerups,
-          })
-        );
+        const savePayload = {
+          coins: state.coins,
+          lifetimeCoins: state.lifetimeCoins,
+          clicks: state.clicks,
+          perClick: state.perClick,
+          clickCurrency: state.clickCurrency,
+          currencyProgress: state.currencyProgress,
+          globalClickMultiplier: state.globalClickMultiplier,
+          globalAutoMultiplier: state.globalAutoMultiplier,
+          upgradeCostMultiplier: state.upgradeCostMultiplier,
+          upgrades: state.upgrades.map((u) => ({
+            id: u.id,
+            count: u.count,
+          })),
+          shopPowerups: state.shopPowerups,
+        };
+
+        // Legacy single-player save
+        localStorage.setItem(saveKey, JSON.stringify(savePayload));
+
+        // Per-user save keyed by username
+        if (currentUser && currentUser.username) {
+          saveLocalUserSave(currentUser.username, savePayload);
+        }
+
         const el = document.getElementById("saveStatus");
         if (el) {
           el.textContent = "Saved";
           setTimeout(() => (el.textContent = "Autosaving..."), 1200);
+        }
+        if (currentUser) {
+          api("/api/me/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ coins: state.coins }) }).catch(() => {});
         }
       } catch (e) {
         console.warn("Failed to save", e);
@@ -1688,8 +2271,16 @@
       render();
     }
 
-    loadGame();
-    render();
+    initAuthUI();
+    checkAuth().then((signedIn) => {
+      if (signedIn) {
+        loadGameForCurrentUser();
+        api("/api/auth/me").then((r) => r.json()).then((d) => {
+          if (d && d.user && typeof d.user.coins === "number") state.coins = d.user.coins;
+          render();
+        }).catch(() => render());
+      }
+    });
 
     elClickButton.addEventListener("click", handleClick);
 
@@ -1729,6 +2320,192 @@
         closeShop();
       }
     });
+
+    function openUsersModal() {
+      document.getElementById("usersModal").classList.add("visible");
+      document.getElementById("userList").innerHTML = "";
+      document.getElementById("usersSearch").value = "";
+      loadFriends();
+    }
+
+    function loadFriends() {
+      api("/api/friends").then((r) => r.json()).then((d) => {
+        const list = document.getElementById("friendList");
+        list.innerHTML = "";
+        (d.friends || []).forEach((f) => {
+          const row = document.createElement("div");
+          row.className = "friend-row";
+          row.innerHTML = "<div><span class=\"name\">" + (f.username || "?") + "</span><div class=\"meta\">" + formatNumber(f.coins || 0) + " coins</div></div><button type=\"button\" class=\"btn-challenge\" data-username=\"" + (f.username || "") + "\">Challenge</button>";
+          row.querySelector(".btn-challenge").addEventListener("click", () => { closeUsersModal(); openRacesModal(); selectFriendForRace(f.username); });
+          list.appendChild(row);
+        });
+      }).catch(() => {});
+    }
+
+    function searchUsers() {
+      const q = document.getElementById("usersSearch").value.trim();
+      api("/api/users?q=" + encodeURIComponent(q)).then((r) => r.json()).then((d) => {
+        const list = document.getElementById("userList");
+        list.innerHTML = "";
+        (d.users || []).forEach((u) => {
+          const row = document.createElement("div");
+          row.className = "user-row";
+          const btn = u.isFriend
+            ? "<span style=\"font-size:11px;color:var(--muted);\">Friends</span>"
+            : "<button type=\"button\" class=\"btn-friend\" data-username=\"" + (u.username || "") + "\">Add friend</button>";
+          row.innerHTML = "<div><span class=\"name\">" + (u.username || "?") + "</span><div class=\"meta\">" + formatNumber(u.coins || 0) + " coins</div></div>" + btn;
+          const b = row.querySelector(".btn-friend");
+          if (b) b.addEventListener("click", () => addFriend(u.username));
+          list.appendChild(row);
+        });
+      }).catch(() => {});
+    }
+
+    function addFriend(username) {
+      api("/api/friends", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username }) })
+        .then((r) => r.json())
+        .then((d) => { if (!d.error) loadFriends(); searchUsers(); })
+        .catch(() => {});
+    }
+
+    function closeUsersModal() {
+      document.getElementById("usersModal").classList.remove("visible");
+    }
+
+    document.getElementById("btnUsers").addEventListener("click", openUsersModal);
+    document.getElementById("usersSearchBtn").addEventListener("click", searchUsers);
+    document.getElementById("usersModalClose").addEventListener("click", closeUsersModal);
+
+    function openRacesModal() {
+      document.getElementById("racesModal").classList.add("visible");
+      document.getElementById("raceLiveSection").style.display = "none";
+      document.getElementById("raceCreateSection").style.display = "block";
+      document.getElementById("raceList").style.display = "block";
+      loadRaces();
+      fillRaceFriendSelect();
+    }
+
+    function fillRaceFriendSelect() {
+      api("/api/friends").then((r) => r.json()).then((d) => {
+        const sel = document.getElementById("raceFriendSelect");
+        sel.innerHTML = "<option value=\"\">Choose a friend</option>";
+        (d.friends || []).forEach((f) => { sel.appendChild(new Option(f.username, f.id)); });
+      }).catch(() => {});
+    }
+
+    let selectedFriendForRace = null;
+    function selectFriendForRace(username) {
+      const sel = document.getElementById("raceFriendSelect");
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text === username) { sel.selectedIndex = i; break; }
+      }
+    }
+
+    function loadRaces() {
+      api("/api/races").then((r) => r.json()).then((d) => {
+        const list = document.getElementById("raceList");
+        list.innerHTML = "";
+        (d.races || []).forEach((r) => {
+          const card = document.createElement("div");
+          card.className = "race-card";
+          let status = r.status === "pending" ? "Pending" : r.status === "active" ? "Live" : "Finished";
+          let actions = "";
+          if (r.status === "pending" && !r.isHost) actions = "<button type=\"button\" class=\"btn-challenge\" data-id=\"" + r.id + "\">Accept</button>";
+          if (r.status === "active") actions = "<button type=\"button\" class=\"btn-challenge\" data-id=\"" + r.id + "\">Open race</button>";
+          if (r.status === "finished") status = r.winnerId === (currentUser && currentUser.id) ? "You won!" : "You lost";
+          card.innerHTML = "<div class=\"status\">" + status + "</div><div class=\"vs\">" + (r.hostUsername || "?") + " vs " + (r.opponentUsername || "?") + "</div><div class=\"progress\">Target: " + (r.targetClicks || 0) + " · Stake: " + (r.stakeCoins || 0) + " coins · You: " + (r.myClicks || 0) + " · Them: " + (r.theirClicks || 0) + "</div>" + actions;
+          const btn = card.querySelector("button");
+          if (btn) btn.addEventListener("click", () => { if (r.status === "pending" && !r.isHost) acceptRace(r.id); else if (r.status === "active") openLiveRace(r.id); });
+          list.appendChild(card);
+        });
+      }).catch(() => {});
+    }
+
+    function acceptRace(raceId) {
+      api("/api/me/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ coins: state.coins }) })
+        .then(() => api("/api/races/" + raceId + "/accept", { method: "POST" }))
+        .then(() => { loadRaces(); openLiveRace(raceId); })
+        .catch(() => {});
+    }
+
+    let liveRaceId = null;
+    let liveRacePoll = null;
+
+    function openLiveRace(raceId) {
+      liveRaceId = raceId;
+      document.getElementById("raceCreateSection").style.display = "none";
+      document.getElementById("raceList").style.display = "none";
+      document.getElementById("raceLiveSection").style.display = "block";
+      updateRaceLiveUI();
+      liveRacePoll = setInterval(() => { if (liveRaceId) updateRaceLiveUI(); }, 1500);
+    }
+
+    function updateRaceLiveUI() {
+      if (!liveRaceId) return;
+      api("/api/races/" + liveRaceId).then((r) => r.json()).then((d) => {
+        const r = d.race;
+        const container = document.getElementById("raceLiveContent");
+        container.innerHTML = "<div class=\"target\">First to " + (r.targetClicks || 0) + " clicks wins " + (r.stakeCoins || 0) + " coins</div>" +
+          "<div class=\"scores\"><div class=\"score-box\"><div class=\"label\">" + (r.hostUsername || "Host") + "</div><div class=\"value\" id=\"raceHostClicks\">" + (r.hostClicks || 0) + "</div></div><div class=\"score-box\"><div class=\"label\">" + (r.opponentUsername || "Opponent") + "</div><div class=\"value\" id=\"raceOppClicks\">" + (r.opponentClicks || 0) + "</div></div></div>";
+        if (r.status === "active") {
+          container.innerHTML += "<button type=\"button\" class=\"race-click-btn\" id=\"raceClickBtn\">CLICK</button>";
+          container.querySelector("#raceClickBtn").addEventListener("click", () => submitRaceClick());
+        } else if (r.status === "finished") {
+          const won = r.winnerId === (currentUser && currentUser.id);
+          container.innerHTML += "<p style=\"margin-top:16px;font-size:14px;color:" + (won ? "#22c55e" : "#f97373") + ";\">" + (won ? "You won! +" + (r.stakeCoins || 0) + " coins" : "You lost. -" + (r.stakeCoins || 0) + " coins") + "</p>";
+          if (liveRacePoll) clearInterval(liveRacePoll);
+          liveRacePoll = null;
+          liveRaceId = null;
+          if (currentUser) { api("/api/auth/me").then((res) => res.json()).then((ud) => { if (ud && ud.user) { currentUser = ud.user; state.coins = ud.user.coins; render(); } }); }
+        }
+      }).catch(() => {});
+    }
+
+    function submitRaceClick() {
+      if (!liveRaceId) return;
+      api("/api/races/" + liveRaceId + "/click", { method: "POST" }).then((r) => r.json()).then((d) => {
+        const r = d.race;
+        const container = document.getElementById("raceLiveContent");
+        const hostEl = container.querySelector("#raceHostClicks");
+        const oppEl = container.querySelector("#raceOppClicks");
+        if (hostEl) hostEl.textContent = r.hostClicks || 0;
+        if (oppEl) oppEl.textContent = r.opponentClicks || 0;
+        if (r.status === "finished") {
+          if (liveRacePoll) clearInterval(liveRacePoll);
+          liveRacePoll = null;
+          liveRaceId = null;
+          updateRaceLiveUI();
+          if (currentUser) api("/api/auth/me").then((res) => res.json()).then((ud) => { if (ud && ud.user) { currentUser = ud.user; state.coins = ud.user.coins; render(); } });
+        }
+      }).catch(() => {});
+    }
+
+    document.getElementById("raceCreateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sel = document.getElementById("raceFriendSelect");
+      const opponentId = sel.value;
+      const targetClicks = parseInt(document.getElementById("raceTargetClicks").value, 10) || 100;
+      const stakeCoins = parseInt(document.getElementById("raceStakeCoins").value, 10) || 0;
+      if (!opponentId) return;
+      await api("/api/me/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ coins: state.coins }) });
+      const res = await api("/api/races", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ opponentId, targetClicks, stakeCoins }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(data.error || "Failed to create race"); return; }
+      loadRaces();
+    });
+
+    document.getElementById("raceLiveBack").addEventListener("click", () => {
+      if (liveRacePoll) clearInterval(liveRacePoll);
+      liveRacePoll = null;
+      liveRaceId = null;
+      document.getElementById("raceLiveSection").style.display = "none";
+      document.getElementById("raceCreateSection").style.display = "block";
+      document.getElementById("raceList").style.display = "block";
+      loadRaces();
+    });
+
+    document.getElementById("btnRaces").addEventListener("click", openRacesModal);
+    document.getElementById("racesModalClose").addEventListener("click", () => document.getElementById("racesModal").classList.remove("visible"));
 
     setupMusic();
   </script>
