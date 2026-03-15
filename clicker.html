@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Clicker Game</title>
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-soft: #0f172a;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --accent-strong: #4ade80;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --card-radius: 18px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1d293b 0, #020617 65%, #000 100%);
+      min-height: 100vh;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .game-shell {
+      width: 100%;
+      max-width: 960px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.92));
+      border-radius: 26px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 20px 22px 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(45, 212, 191, 0.16), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.14), transparent 55%),
+        radial-gradient(circle at 50% 120%, rgba(34, 197, 94, 0.18), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .pane {
+      position: relative;
+      z-index: 1;
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.16), rgba(15, 23, 42, 0.9));
+      border-radius: 22px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(18px);
+    }
+
+    .pane-secondary {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.17), rgba(15, 23, 42, 0.85));
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #bbf7d0;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 12px 35px rgba(22, 163, 74, 0.55);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #bbf7d0, #22c55e);
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stat-card {
+      flex: 1 1 120px;
+      min-width: 120px;
+      background: radial-gradient(circle at top left, rgba(31, 41, 55, 0.88), rgba(15, 23, 42, 0.95));
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 9px 10px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .stat-value span {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-mini {
+      font-size: 11px;
+      color: #a5b4fc;
+    }
+
+    .main-click-area {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .click-orbit {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(59, 130, 246, 0.9), transparent 60%),
+        radial-gradient(circle at 70% 120%, rgba(16, 185, 129, 0.9), transparent 60%);
+      box-shadow:
+        0 0 0 2px rgba(148, 163, 184, 0.5),
+        0 0 0 12px rgba(15, 23, 42, 0.95),
+        0 40px 90px rgba(15, 23, 42, 0.9);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .click-orbit::before {
+      content: "";
+      position: absolute;
+      inset: 15px;
+      border-radius: inherit;
+      border: 1px dashed rgba(226, 232, 240, 0.3);
+      opacity: 0.7;
+    }
+
+    .click-button {
+      position: relative;
+      width: 175px;
+      height: 175px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background:
+        radial-gradient(circle at 20% 0%, #f9fafb, #d1fae5 40%, #22c55e 100%);
+      box-shadow:
+        0 12px 26px rgba(15, 23, 42, 0.85),
+        0 0 45px rgba(34, 197, 94, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        filter 0.08s ease;
+      overflow: hidden;
+    }
+
+    .click-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(251, 113, 133, 0.45), transparent 55%),
+        radial-gradient(circle at 70% 100%, rgba(56, 189, 248, 0.4), transparent 55%);
+      mix-blend-mode: soft-light;
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    .click-button-label {
+      position: relative;
+      font-size: 15px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #1f2937;
+      font-weight: 700;
+      opacity: 0.8;
+    }
+
+    .click-button-amount {
+      position: relative;
+      font-size: 32px;
+      font-weight: 800;
+      color: #064e3b;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .click-button-amount span {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #047857;
+      opacity: 0.9;
+    }
+
+    .click-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.95),
+        0 0 70px rgba(34, 197, 94, 1);
+      filter: saturate(1.1);
+    }
+
+    .click-button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow:
+        0 9px 20px rgba(15, 23, 42, 0.9),
+        0 0 35px rgba(22, 163, 74, 0.8);
+      filter: saturate(0.95);
+    }
+
+    .floating-delta {
+      position: absolute;
+      font-size: 13px;
+      font-weight: 700;
+      color: #bbf7d0;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      text-shadow: 0 0 15px rgba(34, 197, 94, 0.9);
+    }
+
+    .per-sec-badge {
+      font-size: 12px;
+      color: #a5b4fc;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.55);
+      box-shadow: 0 12px 30px rgba(30, 64, 175, 0.85);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .per-sec-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: rgba(191, 219, 254, 0.8);
+    }
+
+    .per-sec-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e0e7ff;
+    }
+
+    .upgrades-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      max-height: 320px;
+    }
+
+    .upgrade-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 15px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease,
+        background 0.08s ease, opacity 0.08s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upgrade-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(251, 191, 36, 0.16), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+    }
+
+    .upgrade-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(248, 250, 252, 0.6);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 1));
+    }
+
+    .upgrade-card:hover::before {
+      opacity: 1;
+    }
+
+    .upgrade-card.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .upgrade-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 20% 0, rgba(251, 191, 36, 0.9), rgba(2, 6, 23, 1));
+      box-shadow:
+        0 0 0 1px rgba(248, 250, 252, 0.25),
+        0 10px 24px rgba(15, 23, 42, 0.95);
+      font-size: 18px;
+    }
+
+    .upgrade-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .upgrade-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .upgrade-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .upgrade-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .upgrade-cost {
+      font-size: 12px;
+      color: #fbbf24;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+    }
+
+    .upgrade-count {
+      font-size: 11px;
+      color: #a5b4fc;
+    }
+
+    .upgrade-effect {
+      font-size: 11px;
+      color: #6ee7b7;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.45);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .reset-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(248, 113, 113, 0.12);
+      color: #fecaca;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 600;
+    }
+
+    .reset-btn:hover {
+      background: rgba(248, 113, 113, 0.22);
+      box-shadow: 0 8px 20px rgba(127, 29, 29, 0.8);
+    }
+
+    .reset-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .reset-hint {
+      color: var(--danger);
+      font-weight: 500;
+    }
+
+    .small-label {
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .small-value {
+      font-size: 12px;
+      color: #e5e7eb;
+      margin-top: 2px;
+    }
+
+    .progress-bar-wrapper {
+      margin-top: 10px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 3px;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.7);
+    }
+
+    .progress-bar-inner {
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .progress-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .currency-pill {
+      position: fixed;
+      top: 10px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, rgba(248, 250, 252, 0.95), rgba(191, 219, 254, 0.95));
+      border: 1px solid rgba(59, 130, 246, 0.7);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.85);
+      font-size: 12px;
+      color: #0f172a;
+      cursor: default;
+      z-index: 60;
+    }
+
+    .currency-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #facc15, #f97316);
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.4),
+        0 0 12px rgba(250, 204, 21, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .currency-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .currency-amount {
+      font-weight: 700;
+    }
+
+    .currency-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #1d4ed8;
+    }
+
+    .credits {
+      position: fixed;
+      bottom: 10px;
+      right: 16px;
+      font-size: 11px;
+      color: #dc2626;
+      font-family: "Georgia", "Times New Roman", serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.6);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
+      z-index: 50;
+    }
+
+    .classic-frame {
+      position: fixed;
+      inset: 14px;
+      pointer-events: none;
+      border: 2px solid rgba(248, 250, 252, 0.15);
+      border-radius: 18px;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.85);
+      z-index: 5;
+    }
+
+    .classic-frame::before,
+    .classic-frame::after {
+      content: "";
+      position: absolute;
+      width: 70px;
+      height: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top: 1px solid rgba(248, 250, 252, 0.35);
+    }
+
+    .classic-frame::before {
+      top: -1px;
+    }
+
+    .classic-frame::after {
+      bottom: -1px;
+    }
+
+    .shop-button {
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.7);
+      padding: 6px 14px;
+      background: radial-gradient(circle at top, rgba(248, 250, 252, 0.95), rgba(191, 219, 254, 0.9));
+      color: #1e293b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
+    }
+
+    .shop-button span {
+      font-size: 13px;
+    }
+
+    .shop-button:hover {
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .shop-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 7px 16px rgba(15, 23, 42, 0.85);
+    }
+
+    .shop-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+    }
+
+    .shop-modal {
+      width: 100%;
+      max-width: 520px;
+      background: radial-gradient(circle at top, #e5f0ff, #eff6ff);
+      border-radius: 20px;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      padding: 18px 18px 16px;
+      color: #0f172a;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shop-modal::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(96, 165, 250, 0.18), transparent 55%);
+      pointer-events: none;
+    }
+
+    .shop-header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .shop-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .shop-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #1d4ed8;
+    }
+
+    .shop-subtitle {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .shop-close-btn {
+      border: none;
+      background: rgba(15, 23, 42, 0.04);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .shop-close-btn:hover {
+      background: rgba(15, 23, 42, 0.09);
+    }
+
+    .shop-content {
+      position: relative;
+      display: grid;
+      grid-template-columns: 0.4fr 0.6fr;
+      gap: 14px;
+      z-index: 1;
+    }
+
+    .shop-keeper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding-right: 8px;
+    }
+
+    .shop-robot {
+      width: 120px;
+      height: 120px;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #f9fafb, #e5e7eb);
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.9),
+        0 20px 35px rgba(15, 23, 42, 0.35);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shop-robot-face {
+      width: 78px;
+      height: 52px;
+      border-radius: 18px;
+      background: linear-gradient(to bottom, #0f172a, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .shop-robot-eye {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #bfdbfe, #1d4ed8);
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
+    }
+
+    .shop-robot-mouth {
+      position: absolute;
+      bottom: 26px;
+      width: 34px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      opacity: 0.85;
+    }
+
+    .shop-robot-base {
+      position: absolute;
+      bottom: 12px;
+      width: 88px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #e5e7eb, #d1d5db);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.45);
+    }
+
+    .shop-keeper-line {
+      font-size: 11px;
+      color: #4b5563;
+      text-align: center;
+    }
+
+    .shop-offers {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+
+    .shop-offer {
+      background: rgba(248, 250, 252, 0.95);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.85);
+      padding: 8px 9px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
+    }
+
+    .shop-offer:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.35);
+      border-color: rgba(59, 130, 246, 0.9);
+    }
+
+    .shop-offer.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .shop-offer-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #bfdbfe, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .shop-offer-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .shop-offer-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .shop-offer-desc {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    .shop-offer-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      font-size: 11px;
+    }
+
+    .shop-offer-cost {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .shop-offer-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #6b7280;
+    }
+
+    .music-controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .music-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .music-button {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 4px 9px;
+      background: rgba(15, 23, 42, 0.7);
+      color: #e5e7eb;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+    }
+
+    .music-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .music-track-label {
+      font-size: 11px;
+      color: #c4b5fd;
+    }
+
+    @media (max-width: 800px) {
+      .game-shell {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 18px 14px 16px;
+      }
+
+      .pane {
+        padding: 14px 13px 12px;
+      }
+
+      .click-orbit {
+        width: 190px;
+        height: 190px;
+      }
+
+      .click-button {
+        width: 158px;
+        height: 158px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 16px 10px;
+      }
+
+      .click-orbit {
+        width: 175px;
+        height: 175px;
+      }
+
+      .click-button {
+        width: 145px;
+        height: 145px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="classic-frame"></div>
+
+  <div class="currency-pill">
+    <div class="currency-icon">C</div>
+    <div class="currency-text">
+      <div class="currency-amount" id="clickCurrencyDisplay">0</div>
+      <div class="currency-label">ClickCurrency</div>
+    </div>
+  </div>
+
+  <div class="game-shell">
+    <div class="pane">
+      <div class="header-row">
+        <div class="title-block">
+          <div class="title">Nebula Clicker</div>
+          <div class="subtitle">Click to generate energy, then automate the universe.</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="shop-button" id="shopButton">
+            <span>☰</span>
+            SHOP
+          </button>
+          <div class="pill">
+            <span class="pill-dot"></span>
+            <span>Run Session</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Energy</div>
+          <div class="stat-value" id="coinsDisplay">0<span>units</span></div>
+          <div class="stat-mini" id="lifetimeDisplay">Lifetime: 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Per Click</div>
+          <div class="stat-value" id="perClickDisplay">1<span>units</span></div>
+          <div class="stat-mini" id="clicksDisplay">Clicks: 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Automation</div>
+          <div class="stat-value" id="perSecondDisplay">0<span>per sec</span></div>
+          <div class="stat-mini" id="upgradesDisplay">Upgrades: 0</div>
+        </div>
+      </div>
+
+      <div class="main-click-area">
+        <div class="click-orbit">
+          <button id="clickButton" class="click-button">
+            <div class="click-button-label">Tap Core</div>
+            <div class="click-button-amount">
+              +<span id="perClickAmount">1</span>
+              <span>energy</span>
+            </div>
+            <div class="floating-delta" id="floatingDelta">+0</div>
+          </button>
+        </div>
+
+        <div class="per-sec-badge">
+          <span class="per-sec-label">Automation</span>
+          <span class="per-sec-value" id="autoBreakdown">0 / sec</span>
+        </div>
+      </div>
+
+      <div class="footer-row">
+        <div>
+          <div class="small-label">Tip</div>
+          <div class="small-value">Stack automators, then boost per-click for big bursts.</div>
+        </div>
+        <button class="reset-btn" id="resetBtn">
+          <span>Reset Run</span>
+        </button>
+      </div>
+
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-inner" id="currencyProgressBar"></div>
+      </div>
+      <div class="progress-label-row">
+        <span>Next ClickCurrency</span>
+        <span id="currencyProgressLabel">0%</span>
+      </div>
+
+      <div class="music-controls">
+        <div>
+          <div class="small-label">Music</div>
+          <div class="small-value music-track-label" id="musicTrackLabel">Piano 1</div>
+        </div>
+        <div class="music-buttons">
+          <button class="music-button" id="musicPrev">Prev</button>
+          <button class="music-button" id="musicPlayPause">Pause</button>
+          <button class="music-button" id="musicNext">Next</button>
+          <button class="music-button" id="musicMute">Mute</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane pane-secondary">
+      <div class="header-row">
+        <div class="title-block">
+          <div class="title">Upgrades</div>
+          <div class="subtitle">Reinvest energy to compound your gains.</div>
+        </div>
+        <div class="small-label" id="saveStatus">Autosaving...</div>
+      </div>
+
+      <div class="upgrades-list" id="upgradesList"></div>
+
+      <div class="footer-row">
+        <div>
+          <div class="small-label">Hotkeys</div>
+          <div class="small-value">Space = Tap Core, 1-9 = buy upgrades</div>
+        </div>
+        <div class="reset-hint">Reset only if you want a clean slate.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="credits">made by JakeCodes</div>
+
+  <div class="shop-modal-backdrop" id="shopBackdrop">
+    <div class="shop-modal">
+      <div class="shop-header">
+        <div class="shop-title-block">
+          <div class="shop-title">Robot Emporium</div>
+          <div class="shop-subtitle">Futuristic boosts for your Nebula Core.</div>
+        </div>
+        <button class="shop-close-btn" id="shopClose">Close</button>
+      </div>
+      <div class="shop-content">
+        <div class="shop-keeper">
+          <div class="shop-robot">
+            <div class="shop-robot-face">
+              <div class="shop-robot-eye"></div>
+              <div class="shop-robot-eye"></div>
+            </div>
+            <div class="shop-robot-mouth"></div>
+            <div class="shop-robot-base"></div>
+          </div>
+          <div class="shop-keeper-line" id="shopKeeperLine">
+            "Welcome, JakeCodes. ClickCurrency accepted here."
+          </div>
+        </div>
+        <div class="shop-offers" id="shopOffers"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const formatNumber = (n) => {
+      if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+      return Math.floor(n).toString();
+    };
+
+    const saveKey = "nebula_clicker_save_v1";
+
+    const CURRENCY_PROGRESS_MAX = 100;
+    const CLICKS_PROGRESS_WEIGHT = 2;
+    const TIME_PROGRESS_WEIGHT = 1;
+
+    let state = {
+      coins: 0,
+      lifetimeCoins: 0,
+      clicks: 0,
+      perClick: 1,
+      clickCurrency: 0,
+      currencyProgress: 0,
+      upgrades: [
+        {
+          id: "auto_clicker",
+          name: "Orbital Drone",
+          desc: "Generates +1 energy per second.",
+          baseCost: 25,
+          count: 0,
+          type: "perSecond",
+          amount: 1,
+          icon: "🛰️",
+        },
+        {
+          id: "mega_auto",
+          name: "Quantum Array",
+          desc: "Each adds +10 energy per second.",
+          baseCost: 250,
+          count: 0,
+          type: "perSecond",
+          amount: 10,
+          icon: "⚛️",
+        },
+        {
+          id: "click_power",
+          name: "Core Amplifier",
+          desc: "Each doubles your tap strength.",
+          baseCost: 50,
+          count: 0,
+          type: "multiplier",
+          amount: 2,
+          icon: "✨",
+        },
+        {
+          id: "flat_click",
+          name: "Flux Condenser",
+          desc: "Adds +5 energy per tap.",
+          baseCost: 120,
+          count: 0,
+          type: "perClick",
+          amount: 5,
+          icon: "💡",
+        },
+        {
+          id: "auto_click_boost",
+          name: "Drone Overclock",
+          desc: "Boosts all automation by 20%.",
+          baseCost: 500,
+          count: 0,
+          type: "autoMultiplier",
+          amount: 1.2,
+          icon: "🚀",
+        },
+      ],
+      shopPowerups: [
+        {
+          id: "shop_click_burst",
+          name: "Celestial Click Burst",
+          desc: "+50 flat energy per click.",
+          cost: 3,
+          icon: "💥",
+          effect: { type: "perClickFlat", amount: 50 },
+          tag: "Major Click Boost",
+        },
+        {
+          id: "shop_auto_overdrive",
+          name: "Overdrive Reactor",
+          desc: "Automation x2 permanently.",
+          cost: 5,
+          icon: "⚡",
+          effect: { type: "autoMultiplierGlobal", amount: 2 },
+          tag: "Automation",
+        },
+        {
+          id: "shop_click_mult",
+          name: "Quantum Fingers",
+          desc: "Per-click x1.5 permanently.",
+          cost: 4,
+          icon: "🖐️",
+          effect: { type: "clickMultiplierGlobal", amount: 1.5 },
+          tag: "Click Power",
+        },
+        {
+          id: "shop_instant_energy",
+          name: "Instant Nebula Charge",
+          desc: "Gain 10,000 energy instantly.",
+          cost: 2,
+          icon: "⚙️",
+          effect: { type: "instantEnergy", amount: 10000 },
+          tag: "One-Time Boost",
+        },
+        {
+          id: "shop_discount",
+          name: "Trader's Favor",
+          desc: "Energy upgrades 10% cheaper.",
+          cost: 4,
+          icon: "📉",
+          effect: { type: "upgradeDiscount", amount: 0.9 },
+          tag: "Economy",
+        },
+      ],
+      globalClickMultiplier: 1,
+      globalAutoMultiplier: 1,
+      upgradeCostMultiplier: 1,
+    };
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(saveKey);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return;
+
+        state = {
+          ...state,
+          ...parsed,
+          upgrades: state.upgrades.map((u) => {
+            const saved = parsed.upgrades?.find((x) => x.id === u.id);
+            return saved ? { ...u, ...saved } : u;
+          }),
+        };
+      } catch (e) {
+        console.warn("Failed to load save", e);
+      }
+    }
+
+    function saveGame() {
+      try {
+        localStorage.setItem(
+          saveKey,
+          JSON.stringify({
+            coins: state.coins,
+            lifetimeCoins: state.lifetimeCoins,
+            clicks: state.clicks,
+            perClick: state.perClick,
+            clickCurrency: state.clickCurrency,
+            currencyProgress: state.currencyProgress,
+            globalClickMultiplier: state.globalClickMultiplier,
+            globalAutoMultiplier: state.globalAutoMultiplier,
+            upgradeCostMultiplier: state.upgradeCostMultiplier,
+            upgrades: state.upgrades.map((u) => ({
+              id: u.id,
+              count: u.count,
+            })),
+            shopPowerups: state.shopPowerups,
+          })
+        );
+        const el = document.getElementById("saveStatus");
+        if (el) {
+          el.textContent = "Saved";
+          setTimeout(() => (el.textContent = "Autosaving..."), 1200);
+        }
+      } catch (e) {
+        console.warn("Failed to save", e);
+      }
+    }
+
+    const elCoins = document.getElementById("coinsDisplay");
+    const elLifetime = document.getElementById("lifetimeDisplay");
+    const elClicks = document.getElementById("clicksDisplay");
+    const elPerClick = document.getElementById("perClickDisplay");
+    const elPerClickAmount = document.getElementById("perClickAmount");
+    const elPerSecond = document.getElementById("perSecondDisplay");
+    const elUpgradesCount = document.getElementById("upgradesDisplay");
+    const elClickButton = document.getElementById("clickButton");
+    const elFloatingDelta = document.getElementById("floatingDelta");
+    const elUpgradesList = document.getElementById("upgradesList");
+    const elAutoBreakdown = document.getElementById("autoBreakdown");
+    const elResetBtn = document.getElementById("resetBtn");
+    const elClickCurrency = document.getElementById("clickCurrencyDisplay");
+    const elCurrencyProgressBar = document.getElementById("currencyProgressBar");
+    const elCurrencyProgressLabel = document.getElementById("currencyProgressLabel");
+    const elShopButton = document.getElementById("shopButton");
+    const elShopBackdrop = document.getElementById("shopBackdrop");
+    const elShopClose = document.getElementById("shopClose");
+    const elShopOffers = document.getElementById("shopOffers");
+    const elShopKeeperLine = document.getElementById("shopKeeperLine");
+    const elMusicTrackLabel = document.getElementById("musicTrackLabel");
+    const elMusicPrev = document.getElementById("musicPrev");
+    const elMusicNext = document.getElementById("musicNext");
+    const elMusicPlayPause = document.getElementById("musicPlayPause");
+    const elMusicMute = document.getElementById("musicMute");
+
+    const musicTracks = [
+      { name: "Piano 1", src: "piano1.mp3" },
+      { name: "Piano 2", src: "piano2.mp3" },
+      { name: "Piano 3", src: "piano3.mp3" },
+    ];
+    let currentTrackIndex = 0;
+    let musicAudio = new Audio();
+    musicAudio.loop = true;
+
+    function computePerSecond() {
+      let base = 0;
+      let autoMult = 1;
+
+      state.upgrades.forEach((u) => {
+        if (u.type === "perSecond") {
+          base += u.amount * u.count;
+        } else if (u.type === "autoMultiplier") {
+          autoMult *= Math.pow(u.amount, u.count);
+        }
+      });
+
+      return base * autoMult * state.globalAutoMultiplier;
+    }
+
+    function computePerClick() {
+      let flat = 1;
+      let mult = 1;
+      state.upgrades.forEach((u) => {
+        if (u.type === "perClick") {
+          flat += u.amount * u.count;
+        } else if (u.type === "multiplier") {
+          mult *= Math.pow(u.amount, u.count);
+        }
+      });
+      return flat * mult * state.globalClickMultiplier;
+    }
+
+    function getUpgradeCost(u) {
+      return Math.floor(u.baseCost * Math.pow(1.15, u.count) * state.upgradeCostMultiplier);
+    }
+
+    function updateCurrencyProgress(deltaClicks = 0, deltaTime = 0) {
+      state.currencyProgress += deltaClicks * CLICKS_PROGRESS_WEIGHT;
+      state.currencyProgress += deltaTime * TIME_PROGRESS_WEIGHT;
+      while (state.currencyProgress >= CURRENCY_PROGRESS_MAX) {
+        state.currencyProgress -= CURRENCY_PROGRESS_MAX;
+        state.clickCurrency += 1;
+      }
+    }
+
+    function renderCurrency() {
+      elClickCurrency.textContent = state.clickCurrency.toString();
+      const pct = Math.min(
+        100,
+        (state.currencyProgress / CURRENCY_PROGRESS_MAX) * 100
+      );
+      elCurrencyProgressBar.style.width = pct.toFixed(0) + "%";
+      elCurrencyProgressLabel.textContent = pct.toFixed(0) + "%";
+    }
+
+    function render() {
+      const perSec = computePerSecond();
+      const perClick = computePerClick();
+      state.perClick = perClick;
+
+      elCoins.textContent = formatNumber(state.coins);
+      elLifetime.textContent = "Lifetime: " + formatNumber(state.lifetimeCoins);
+      elClicks.textContent = "Clicks: " + formatNumber(state.clicks);
+      elPerClick.textContent = perClick.toFixed(0) + " units";
+      elPerClickAmount.textContent = perClick.toFixed(0);
+      elPerSecond.textContent = formatNumber(perSec) + " per sec";
+
+      const totalUpgrades = state.upgrades.reduce((sum, u) => sum + (u.count || 0), 0);
+      elUpgradesCount.textContent = "Upgrades: " + totalUpgrades;
+
+      const baseAuto = state.upgrades
+        .filter((u) => u.type === "perSecond")
+        .map((u) => u.amount * u.count)
+        .reduce((a, b) => a + b, 0);
+
+      const autoMult = state.upgrades
+        .filter((u) => u.type === "autoMultiplier")
+        .reduce((acc, u) => acc * Math.pow(u.amount, u.count), 1);
+
+      elAutoBreakdown.textContent =
+        formatNumber(perSec) +
+        " / sec (" +
+        formatNumber(baseAuto) +
+        " base × " +
+        autoMult.toFixed(2) +
+        "x)";
+
+      renderUpgrades();
+      renderCurrency();
+    }
+
+    function renderUpgrades() {
+      elUpgradesList.innerHTML = "";
+      state.upgrades.forEach((u, index) => {
+        const cost = getUpgradeCost(u);
+        const affordable = state.coins >= cost;
+
+        const card = document.createElement("div");
+        card.className = "upgrade-card" + (affordable ? "" : " disabled");
+        card.dataset.id = u.id;
+
+        const icon = document.createElement("div");
+        icon.className = "upgrade-icon";
+        icon.textContent = u.icon || "★";
+
+        const main = document.createElement("div");
+        main.className = "upgrade-main";
+
+        const name = document.createElement("div");
+        name.className = "upgrade-name";
+        name.textContent = (index + 1) + ". " + u.name;
+
+        const desc = document.createElement("div");
+        desc.className = "upgrade-desc";
+        desc.textContent = u.desc;
+
+        const meta = document.createElement("div");
+        meta.className = "upgrade-meta";
+
+        const costEl = document.createElement("div");
+        costEl.className = "upgrade-cost";
+        costEl.innerHTML = `<strong>${formatNumber(cost)}</strong><span>energy</span>`;
+
+        const rightMeta = document.createElement("div");
+        rightMeta.style.display = "flex";
+        rightMeta.style.flexDirection = "column";
+        rightMeta.style.alignItems = "flex-end";
+        rightMeta.style.gap = "1px";
+
+        const countEl = document.createElement("div");
+        countEl.className = "upgrade-count";
+        countEl.textContent = "Owned: " + (u.count || 0);
+
+        const effectEl = document.createElement("div");
+        effectEl.className = "upgrade-effect";
+
+        if (u.type === "perSecond") {
+          effectEl.textContent = "+" + u.amount + " / sec each";
+        } else if (u.type === "perClick") {
+          effectEl.textContent = "+" + u.amount + " / click each";
+        } else if (u.type === "multiplier") {
+          effectEl.textContent = "×" + u.amount.toFixed(2) + " per click each";
+        } else if (u.type === "autoMultiplier") {
+          effectEl.textContent = "×" + u.amount.toFixed(2) + " automation each";
+        }
+
+        rightMeta.appendChild(countEl);
+        rightMeta.appendChild(effectEl);
+
+        meta.appendChild(costEl);
+        meta.appendChild(rightMeta);
+
+        main.appendChild(name);
+        main.appendChild(desc);
+        main.appendChild(meta);
+
+        card.appendChild(icon);
+        card.appendChild(main);
+
+        card.addEventListener("click", () => tryBuyUpgrade(u.id));
+
+        elUpgradesList.appendChild(card);
+      });
+    }
+
+    function showFloatingDelta(amount) {
+      const el = elFloatingDelta;
+      el.textContent = "+" + Math.floor(amount);
+      el.style.opacity = "1";
+      el.style.transform = "translate(-50%, -30%)";
+      el.style.transition = "none";
+
+      requestAnimationFrame(() => {
+        el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+        el.style.opacity = "0";
+        el.style.transform = "translate(-50%, -70%)";
+      });
+    }
+
+    function handleClick() {
+      const perClick = computePerClick();
+      state.coins += perClick;
+      state.lifetimeCoins += perClick;
+      state.clicks += 1;
+      updateCurrencyProgress(1, 0);
+      showFloatingDelta(perClick);
+      render();
+    }
+
+    function tryBuyUpgrade(id) {
+      const upgrade = state.upgrades.find((u) => u.id === id);
+      if (!upgrade) return;
+
+      const cost = getUpgradeCost(upgrade);
+      if (state.coins < cost) return;
+
+      state.coins -= cost;
+      upgrade.count = (upgrade.count || 0) + 1;
+
+      render();
+      saveGame();
+    }
+
+    function getRandomShopOffers() {
+      const shuffled = [...state.shopPowerups].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 3);
+    }
+
+    function applyShopEffect(powerup) {
+      const eff = powerup.effect;
+      if (eff.type === "perClickFlat") {
+        state.upgrades.push({
+          id: `shop_flat_${Date.now()}`,
+          name: powerup.name,
+          desc: powerup.desc,
+          baseCost: 0,
+          count: 1,
+          type: "perClick",
+          amount: eff.amount,
+          icon: powerup.icon || "★",
+        });
+      } else if (eff.type === "autoMultiplierGlobal") {
+        state.globalAutoMultiplier *= eff.amount;
+      } else if (eff.type === "clickMultiplierGlobal") {
+        state.globalClickMultiplier *= eff.amount;
+      } else if (eff.type === "instantEnergy") {
+        state.coins += eff.amount;
+        state.lifetimeCoins += eff.amount;
+      } else if (eff.type === "upgradeDiscount") {
+        state.upgradeCostMultiplier *= eff.amount;
+      }
+    }
+
+    function renderShop() {
+      elShopOffers.innerHTML = "";
+      const offers = getRandomShopOffers();
+      offers.forEach((offer) => {
+        const affordable = state.clickCurrency >= offer.cost;
+        const row = document.createElement("div");
+        row.className = "shop-offer" + (affordable ? "" : " disabled");
+
+        const icon = document.createElement("div");
+        icon.className = "shop-offer-icon";
+        icon.textContent = offer.icon || "★";
+
+        const main = document.createElement("div");
+        main.className = "shop-offer-main";
+        const name = document.createElement("div");
+        name.className = "shop-offer-name";
+        name.textContent = offer.name;
+        const desc = document.createElement("div");
+        desc.className = "shop-offer-desc";
+        desc.textContent = offer.desc;
+        main.appendChild(name);
+        main.appendChild(desc);
+
+        const meta = document.createElement("div");
+        meta.className = "shop-offer-meta";
+        const cost = document.createElement("div");
+        cost.className = "shop-offer-cost";
+        cost.innerHTML =
+          '<span class="currency-icon" style="width:14px;height:14px;font-size:10px;">C</span>' +
+          "<span>" +
+          offer.cost +
+          "</span>";
+        const tag = document.createElement("div");
+        tag.className = "shop-offer-tag";
+        tag.textContent = offer.tag || "Power-up";
+        meta.appendChild(cost);
+        meta.appendChild(tag);
+
+        row.appendChild(icon);
+        row.appendChild(main);
+        row.appendChild(meta);
+
+        row.addEventListener("click", () => {
+          if (state.clickCurrency < offer.cost) return;
+          state.clickCurrency -= offer.cost;
+          applyShopEffect(offer);
+          elShopKeeperLine.textContent =
+            '"Transaction complete. Power rerouted to your core."';
+          render();
+          saveGame();
+          renderShop();
+        });
+
+        elShopOffers.appendChild(row);
+      });
+    }
+
+    function openShop() {
+      elShopBackdrop.style.display = "flex";
+      elShopKeeperLine.textContent =
+        '"Browse my latest futuristic enhancements."';
+      renderShop();
+    }
+
+    function closeShop() {
+      elShopBackdrop.style.display = "none";
+    }
+
+    function setupMusic() {
+      function loadTrack(index) {
+        currentTrackIndex = (index + musicTracks.length) % musicTracks.length;
+        const track = musicTracks[currentTrackIndex];
+        musicAudio.src = track.src;
+        elMusicTrackLabel.textContent = track.name;
+        musicAudio
+          .play()
+          .then(() => {
+            elMusicPlayPause.textContent = "Pause";
+          })
+          .catch(() => {
+            // Autoplay may be blocked; leave as is
+          });
+      }
+
+      elMusicPrev.addEventListener("click", () => {
+        loadTrack(currentTrackIndex - 1);
+      });
+
+      elMusicNext.addEventListener("click", () => {
+        loadTrack(currentTrackIndex + 1);
+      });
+
+      elMusicPlayPause.addEventListener("click", () => {
+        if (musicAudio.paused) {
+          musicAudio
+            .play()
+            .then(() => {
+              elMusicPlayPause.textContent = "Pause";
+            })
+            .catch(() => {});
+        } else {
+          musicAudio.pause();
+          elMusicPlayPause.textContent = "Play";
+        }
+      });
+
+      elMusicMute.addEventListener("click", () => {
+        musicAudio.muted = !musicAudio.muted;
+        elMusicMute.textContent = musicAudio.muted ? "Unmute" : "Mute";
+      });
+
+      loadTrack(0);
+    }
+
+    function resetGame() {
+      if (!confirm("Reset all progress for this run?")) return;
+      localStorage.removeItem(saveKey);
+      state.coins = 0;
+      state.lifetimeCoins = 0;
+      state.clicks = 0;
+      state.perClick = 1;
+      state.upgrades.forEach((u) => (u.count = 0));
+      render();
+    }
+
+    loadGame();
+    render();
+
+    elClickButton.addEventListener("click", handleClick);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        handleClick();
+      }
+
+      const num = parseInt(e.key, 10);
+      if (!isNaN(num) && num >= 1 && num <= state.upgrades.length) {
+        const upgrade = state.upgrades[num - 1];
+        if (upgrade) {
+          tryBuyUpgrade(upgrade.id);
+        }
+      }
+    });
+
+    setInterval(() => {
+      const perSec = computePerSecond();
+      if (perSec > 0) {
+        state.coins += perSec;
+        state.lifetimeCoins += perSec;
+      }
+      updateCurrencyProgress(0, 1);
+      render();
+    }, 1000);
+
+    setInterval(saveGame, 4000);
+
+    elResetBtn.addEventListener("click", resetGame);
+
+    elShopButton.addEventListener("click", openShop);
+    elShopClose.addEventListener("click", closeShop);
+    elShopBackdrop.addEventListener("click", (e) => {
+      if (e.target === elShopBackdrop) {
+        closeShop();
+      }
+    });
+
+    setupMusic();
+  </script>
+</body>
+</html>
